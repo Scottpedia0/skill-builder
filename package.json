@@ -1,0 +1,23 @@
+{
+  "name": "skill-engine",
+  "version": "0.1.0",
+  "description": "Telemetry-driven skill suggestion and auto-implementation engine for Cowork.ai",
+  "type": "module",
+  "bin": {
+    "skill-engine": "./bin/cli.mjs"
+  },
+  "scripts": {
+    "suggest": "node bin/cli.mjs suggest",
+    "daily": "node bin/cli.mjs daily",
+    "implement": "node bin/cli.mjs implement"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Scottpedia0/skill-engine.git"
+  },
+  "author": "Go2 <s@go2.io>",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.8.0"
+  }
+}
