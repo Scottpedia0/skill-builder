@@ -215,16 +215,13 @@ export default function SkillBuilder() {
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
-                {/* Only show install if it's not already installed (we check if path exists as a proxy for installed state in this modal) */}
-                {!currentImplementation?.path && (
-                  <button 
-                    onClick={handleInstall}
-                    disabled={implementing || !currentImplementation}
-                    className="text-sm bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
-                  >
-                    Install Skill
-                  </button>
-                )}
+                <button
+                  onClick={handleInstall}
+                  disabled={implementing || !currentImplementation}
+                  className="text-sm bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  Install Skill
+                </button>
               </div>
             </motion.div>
           </div>
