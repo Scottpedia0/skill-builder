@@ -1,10 +1,10 @@
 {
-  "name": "skill-engine",
+  "name": "skill-builder",
   "version": "0.1.0",
-  "description": "Telemetry-driven skill suggestion and auto-implementation engine for Cowork.ai",
+  "description": "Reads activity telemetry to suggest and build skills and MCPs for AI coding agents",
   "type": "module",
   "bin": {
-    "skill-engine": "./bin/cli.mjs"
+    "skill-builder": "./bin/cli.mjs"
   },
   "scripts": {
     "suggest": "node bin/cli.mjs suggest",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Scottpedia0/skill-engine.git"
+    "url": "https://github.com/Scottpedia0/skill-builder.git"
   },
   "author": "Go2 <s@go2.io>",
   "license": "MIT",

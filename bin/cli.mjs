@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * skill-engine CLI
+ * skill-builder CLI
  *
  * Commands:
  *   suggest          — Full analysis, output ranked suggestion queue
@@ -12,7 +12,7 @@
 
 import { openDb, analyzeAll } from "../lib/analyzer.mjs";
 import { generateSuggestions, dailyPick } from "../lib/suggester.mjs";
-import { generateSkill } from "../lib/generator.mjs";
+import { generateSkill, listImplementable } from "../lib/generator.mjs";
 
 const args = process.argv.slice(2);
 const command = args[0] || "daily";
@@ -68,14 +68,14 @@ async function main() {
       console.log(`- Signal: ${pick.signal}`);
       console.log(`- Confidence: ${pick.confidence}`);
       console.log(`- Source: ${pick.source}\n`);
-      console.log(`Approve? Run: skill-engine implement ${pick.id}`);
+      console.log(`Approve? Run: skill-builder implement ${pick.id}`);
       break;
     }
 
     case "implement": {
       const targetId = args[1];
       if (!targetId) {
-        console.error("Usage: skill-engine implement <skill-id>");
+        console.error("Usage: skill-builder implement <skill-id>");
         process.exit(1);
       }
 
@@ -87,7 +87,9 @@ async function main() {
 
       const result = generateSkill(target, { dryRun });
       if (!result) {
-        console.error(`No generator available for source: ${target.source}`);
+        const available = listImplementable();
+        console.error(`No working implementation for '${targetId}'.`);
+        console.error(`Implementable skills: ${available.join(", ")}`);
         process.exit(1);
       }
 
