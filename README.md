@@ -6,7 +6,7 @@ Watches how you work and builds custom automations for your AI coding agents —
 
 **skills.sh gives you a toolbox. skill-builder watches you work and builds the custom jigs for *your* workshop.**
 
-Works out of the box with just your shell history. Add desktop telemetry for deeper analysis.
+Works out of the box with just your shell history. Add an API key and it generates custom skills from ANY pattern it finds — powered by the LLM of your choice.
 
 ## Try It in 60 Seconds
 
@@ -36,19 +36,59 @@ node bin/cli.mjs implement pr-dashboard
 The demo data simulates a founder running 3 AI coding agents with 8-10 meetings/week across Google Meet, managing GitHub repos, monitoring API costs, and communicating on Slack. The skill suggestions reflect real patterns found in that activity.
 
 <details>
-<summary>Example output</summary>
+<summary>Example: LLM generates a custom skill from your shell history</summary>
+
+The analyzer found you run `cd ~/Downloads/cowork-cua && python3 web.py --gemini` 17 times. You run `skill-builder implement`, and the LLM generates:
+
+```markdown
+---
+name: launch-cowork-cua
+description: "Use this skill when you want to quickly start the cowork-cua web app,
+  launch web.py, or run the UI with Gemini. Also use when you're context-switching
+  and don't remember where the repo lives..."
+---
+
+# Launch Cowork CUA Web
+
+```bash
+command -v python3 >/dev/null || { echo "❌ python3 not found"; exit 1; }
+
+# Find the repo in common locations
+candidates=("$HOME/Downloads/cowork-cua" "$HOME/dev/cowork-cua" "$HOME/src/cowork-cua")
+for d in "${candidates[@]}"; do
+  if [ -d "$d" ]; then repo="$d"; break; fi
+done
+
+cd "$repo"
+# Auto-create venv if needed, install deps, launch with configurable model
+exec "$py" web.py "--${COWORK_MODEL:-gemini}" "${extra[@]}"
+```
+
+Real error handling. Real venv management. Real configurability. Not a template — a working script generated from your actual behavior.
+```
+</details>
+
+<details>
+<summary>Example: 15 built-in skills + unlimited via LLM</summary>
 
 ```
-## Today's Skill Suggestion
+$ skill-builder suggest --days 7
 
-**pr-dashboard** — Morning summary of open PRs, review requests, and CI status
+# Skill Suggestions — 36 total
 
-- Signal: URL 'github.com': 245 visits, 51min
-- Confidence: high
-- Auto-implementable: yes ✅
+## High Confidence
 
-Install it: skill-builder implement pr-dashboard
-Preview first: skill-builder implement pr-dashboard --dry-run
+- **gmail-templates** ✅ — Email templates for follow-ups, intros, status updates
+- **run-cd-cowork-cua** 🤖 — Automate: cd ~/Downloads/cowork-cua && python3 web.py (17x)
+- **agent-continue-from** 🤖 — You asked "continue from where you left off" 18 times
+
+## Medium Confidence
+
+- **pr-dashboard** ✅ — Morning PR/CI summary across repos
+- **git-cleanup** ✅ — Delete merged branches, prune remote refs
+- **port-killer** ✅ — Find and kill processes on dev ports
+
+✅ = hardcoded (instant) | 🤖 = LLM generates (needs API key)
 ```
 
 The generated skill is a markdown file with runnable `gh` commands, JSON parsing, and CI status checks — installed directly to `~/.claude/commands/pr-dashboard.md`.
@@ -97,7 +137,7 @@ skill-builder list              # Show implementable skills
 
 ## Built-in Skills
 
-7 skills with real, working implementations:
+15 skills with real, working implementations (plus unlimited via LLM):
 
 | Skill | What it does | Tools used |
 |-------|-------------|------------|
@@ -108,18 +148,27 @@ skill-builder list              # Show implementable skills
 | **slack-integration-health** | Check bot auth, rate limits, delivery | Slack API |
 | **tab-audit** | Find stale Chrome tabs, suggest actions | Chrome DevTools MCP, SQLite |
 | **video-cataloger** | Index local recordings by date/meeting | `find`, `ffprobe`, Calendar MCP |
+| **gmail-templates** | Email templates for follow-ups, intros, updates | bash templates |
+| **git-cleanup** | Delete merged branches, prune remote refs | `git` |
+| **dep-update** | Check outdated packages, security audit | `npm`, `pip` |
+| **port-killer** | Find/kill processes on dev ports (EADDRINUSE) | `lsof`, `kill` |
+| **docker-reset** | Stop containers, prune images, reclaim space | `docker` |
+| **env-check** | Compare .env.example vs .env, find gaps | bash |
+| **log-search** | Search log files for recent errors | `find`, `grep`, `pm2` |
+| **db-snapshot** | Timestamped backups before migrations | `cp`, `pg_dump` |
 
 ## Data Sources
 
-**Works immediately:**
-- [x] **Shell history** (zsh, bash, fish) — finds repeated commands, sequences, parameterizable patterns
-- [x] [Cowork.ai](https://cowork.ai) desktop telemetry — app usage, URLs, context switches, keystrokes
-- [x] Demo/synthetic data for testing
+**Working now (5 sources):**
+- [x] **Shell history** (zsh, bash, fish) — repeated commands, sequences, parameterizable patterns
+- [x] **Git history** — commit patterns, co-changed files, branch workflows
+- [x] **Browser history** (Chrome, Arc, Brave, Edge) — frequent URLs, repeated Google searches
+- [x] **Claude Code threads** — repeated prompts, correction patterns, command-like requests
+- [x] **Cowork.ai telemetry** — app usage, URLs, context switches, keystrokes
 
 **Coming:**
-- [ ] Browser history (Chrome, Arc, Firefox)
-- [ ] Git commit patterns
-- [ ] macOS Screen Time
+- [ ] Codex sessions
+- [ ] Gemini CLI history
 - [ ] Calendar events
 - [ ] Slack/Teams activity
 
