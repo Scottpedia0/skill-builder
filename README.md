@@ -1,247 +1,144 @@
 # skill-builder
 
-> Analyze how you work. Build automations that actually run. One skill per day.
+Reads your shell history, git commits, browser history, and Claude Code conversation logs. Finds patterns you repeat. Generates working skills (slash commands) you can install in Claude Code, Codex, Cursor, or any agent that reads markdown.
 
-Watches how you work and builds custom automations for your AI coding agents — Claude Code, Codex, Cursor, or anything that reads markdown.
+Has 15 built-in skills. If you add an API key, it uses an LLM to generate skills for any pattern it finds — not just the built-in ones.
 
-**skills.sh gives you a toolbox. skill-builder watches you work and builds the custom jigs for *your* workshop.**
+Built this in a day for our own use. If you find it useful, make it better.
 
-Works out of the box with just your shell history. Add an API key and it generates custom skills from ANY pattern it finds — powered by the LLM of your choice.
-
-## Try It in 60 Seconds
+## Quick Start
 
 ```bash
 git clone https://github.com/Scottpedia0/skill-builder.git
 cd skill-builder
 npm install
 
-# Generate rich demo data (8K sessions, 155 keystroke samples, 11 apps, 27 URLs)
-node scripts/generate-demo-db.mjs
+# See what it finds on your machine (reads shell history + git automatically)
+node bin/cli.mjs suggest
 
-# Set up config and point at demo data
-node bin/cli.mjs init
-# Edit ~/.skill-builder/config.json → set telemetryDb to "./demo/demo.db"
-
-# See what it finds in the demo data
-node bin/cli.mjs suggest --days 7
-
-# Preview a real, runnable skill
+# Preview a skill before installing
 node bin/cli.mjs implement pr-dashboard --dry-run
 
 # Install it
 node bin/cli.mjs implement pr-dashboard
-# → Installs to ~/.claude/commands/pr-dashboard.md
+# → writes to ~/.claude/commands/pr-dashboard.md
 ```
 
-The demo data simulates a founder running 3 AI coding agents with 8-10 meetings/week across Google Meet, managing GitHub repos, monitoring API costs, and communicating on Slack. The skill suggestions reflect real patterns found in that activity.
-
-<details>
-<summary>Example: LLM generates a custom skill from your shell history</summary>
-
-The analyzer found you run `cd ~/Downloads/cowork-cua && python3 web.py --gemini` 17 times. You run `skill-builder implement`, and the LLM generates:
-
-```markdown
----
-name: launch-cowork-cua
-description: "Use this skill when you want to quickly start the cowork-cua web app,
-  launch web.py, or run the UI with Gemini. Also use when you're context-switching
-  and don't remember where the repo lives..."
----
-
-# Launch Cowork CUA Web
+If you don't have shell history or want to test with sample data:
 
 ```bash
-command -v python3 >/dev/null || { echo "❌ python3 not found"; exit 1; }
-
-# Find the repo in common locations
-candidates=("$HOME/Downloads/cowork-cua" "$HOME/dev/cowork-cua" "$HOME/src/cowork-cua")
-for d in "${candidates[@]}"; do
-  if [ -d "$d" ]; then repo="$d"; break; fi
-done
-
-cd "$repo"
-# Auto-create venv if needed, install deps, launch with configurable model
-exec "$py" web.py "--${COWORK_MODEL:-gemini}" "${extra[@]}"
+node scripts/generate-demo-db.mjs
+node bin/cli.mjs suggest --days 7
 ```
 
-Real error handling. Real venv management. Real configurability. Not a template — a working script generated from your actual behavior.
-```
-</details>
+## What It Does
 
-<details>
-<summary>Example: 15 built-in skills + unlimited via LLM</summary>
+Reads data from your machine → finds things you do repeatedly → suggests skills to automate them.
 
 ```
-$ skill-builder suggest --days 7
-
-# Skill Suggestions — 36 total
-
-## High Confidence
-
-- **gmail-templates** ✅ — Email templates for follow-ups, intros, status updates
-- **run-cd-cowork-cua** 🤖 — Automate: cd ~/Downloads/cowork-cua && python3 web.py (17x)
-- **agent-continue-from** 🤖 — You asked "continue from where you left off" 18 times
-
-## Medium Confidence
-
-- **pr-dashboard** ✅ — Morning PR/CI summary across repos
-- **git-cleanup** ✅ — Delete merged branches, prune remote refs
-- **port-killer** ✅ — Find and kill processes on dev ports
-
-✅ = hardcoded (instant) | 🤖 = LLM generates (needs API key)
+  Shell history ──┐
+  Git commits ────┤
+  Browser URLs ───┤──→ Analyzer ──→ Suggester ──→ Generator ──→ skill.md
+  Claude threads ─┤
+  Telemetry ──────┘
 ```
 
-The generated skill is a markdown file with runnable `gh` commands, JSON parsing, and CI status checks — installed directly to `~/.claude/commands/pr-dashboard.md`.
-</details>
+**Without an API key:** 15 built-in skills install instantly (marked ✅).
 
-## How It Works
-
-```
-┌─────────────────────────────────────────────┐
-│ Your activity data (SQLite)                 │
-│  • App usage (VS Code 4hrs, Chrome 3hrs)    │
-│  • URLs visited (GitHub 245x, Meet 500x)    │
-│  • Context switches (VS Code → Chrome 800x) │
-│  • Keystrokes ("sorry for delay" typed 5x)  │
-└────────────────┬────────────────────────────┘
-                 ↓
-         ┌───────────────┐
-         │   Analyzer    │  Reads patterns from telemetry
-         └───────┬───────┘
-                 ↓
-         ┌───────────────┐
-         │   Suggester   │  Ranks by confidence, one per day
-         └───────┬───────┘
-                 ↓
-         ┌───────────────┐
-         │   Generator   │  Builds runnable skill files
-         └───────┬───────┘
-                 ↓
-  ~/.claude/commands/pr-dashboard.md  ← Ready to use
-```
+**With an API key:** The LLM generates a custom skill for any pattern (marked 🤖). Tested with OpenRouter, Anthropic, Google, OpenAI.
 
 ## Commands
 
-```bash
-skill-builder init              # Create config
-skill-builder suggest           # Full ranked suggestion list
-skill-builder daily             # One new suggestion per day
-skill-builder implement <id>    # Build and install a skill
-skill-builder list              # Show implementable skills
+```
+skill-builder suggest           # see all suggestions
+skill-builder daily             # one per day, no repeats
+skill-builder implement <id>    # build and install a skill
+skill-builder list              # show built-in skills
+skill-builder --help            # all options
 ```
 
-| Flag | Effect |
-|------|--------|
-| `--dry-run` | Preview skill without installing |
-| `--days N` | Analysis window (default: 3) |
+`--dry-run` previews without installing. `--days N` controls the analysis window.
 
 ## Built-in Skills
 
-15 skills with real, working implementations (plus unlimited via LLM):
-
-| Skill | What it does | Tools used |
-|-------|-------------|------------|
-| **pr-dashboard** | Morning PR/CI summary across repos | `gh` CLI, JSON parsing |
-| **meeting-auto-brief** | Pre-meeting context from calendar + memory | Calendar MCP, curl, `gh` |
-| **model-cost-monitor** | Track API spend (OpenRouter, Anthropic) | curl, API endpoints |
-| **credential-audit** | Test all API keys, flag expired/unused | curl, SQLite, `gh` |
-| **slack-integration-health** | Check bot auth, rate limits, delivery | Slack API |
-| **tab-audit** | Find stale Chrome tabs, suggest actions | Chrome DevTools MCP, SQLite |
-| **video-cataloger** | Index local recordings by date/meeting | `find`, `ffprobe`, Calendar MCP |
-| **gmail-templates** | Email templates for follow-ups, intros, updates | bash templates |
-| **git-cleanup** | Delete merged branches, prune remote refs | `git` |
-| **dep-update** | Check outdated packages, security audit | `npm`, `pip` |
-| **port-killer** | Find/kill processes on dev ports (EADDRINUSE) | `lsof`, `kill` |
-| **docker-reset** | Stop containers, prune images, reclaim space | `docker` |
-| **env-check** | Compare .env.example vs .env, find gaps | bash |
-| **log-search** | Search log files for recent errors | `find`, `grep`, `pm2` |
-| **db-snapshot** | Timestamped backups before migrations | `cp`, `pg_dump` |
+| Skill | What it does |
+|-------|-------------|
+| pr-dashboard | PR/CI summary across your GitHub repos |
+| meeting-auto-brief | Pre-meeting context from calendar + git + GitHub |
+| model-cost-monitor | API spend check (OpenRouter, Anthropic) |
+| credential-audit | Test your API keys, flag broken ones |
+| slack-integration-health | Check Slack bot auth and rate limits |
+| tab-audit | Find stale browser tabs from Chrome/Arc history |
+| video-cataloger | Index local recordings by date and size |
+| gmail-templates | Email templates for follow-ups, intros, updates |
+| git-cleanup | Delete merged branches, prune remote refs |
+| dep-update | Check outdated packages, security audit |
+| port-killer | Kill processes on dev ports (EADDRINUSE fix) |
+| docker-reset | Stop all containers, prune, reclaim disk |
+| env-check | Compare .env.example vs .env, find missing vars |
+| log-search | Search log files for recent errors |
+| db-snapshot | Backup SQLite/PostgreSQL before migrations |
 
 ## Data Sources
 
-**Working now (5 sources):**
-- [x] **Shell history** (zsh, bash, fish) — repeated commands, sequences, parameterizable patterns
-- [x] **Git history** — commit patterns, co-changed files, branch workflows
-- [x] **Browser history** (Chrome, Arc, Brave, Edge) — frequent URLs, repeated Google searches
-- [x] **Claude Code threads** — repeated prompts, correction patterns, command-like requests
-- [x] **Cowork.ai telemetry** — app usage, URLs, context switches, keystrokes
+These work automatically — no setup:
 
-**Coming:**
-- [ ] Codex sessions
-- [ ] Gemini CLI history
-- [ ] Calendar events
-- [ ] Slack/Teams activity
+- **Shell history** — zsh, bash, fish. Finds repeated commands and sequences.
+- **Git history** — commit patterns, files that change together.
+- **Browser history** — Chrome, Arc, Brave, Edge. Frequent URLs and repeated searches.
+- **Claude Code threads** — reads `~/.claude/` conversation logs. Finds prompts you repeat.
 
-The analyzer reads any SQLite database with `activity_sessions` and `keystroke_chunks` tables in the expected schema. See [`docs/data-sources.md`](docs/data-sources.md) for the full schema, import scripts, and guides for connecting each source.
+Optional:
 
-## Configuration
+- **Cowork.ai telemetry** — app usage, context switches, keystrokes. Set `telemetryDb` in config.
 
-```bash
-skill-builder init  # Creates ~/.skill-builder/config.json
-```
+## LLM Generation
+
+Add an API key to `~/.skill-builder/config.json` and the tool generates skills for any pattern, not just the 15 built-in ones:
 
 ```json
 {
-  "skillDir": "~/.claude/commands",
-  "canonicalDir": null,
-  "telemetryDb": null,
-  "repos": ["your-org/your-repo"],
-  "defaultDays": 3,
-  "dataSources": ["telemetry"]
+  "keys": { "openrouter": "sk-or-..." },
+  "analysisModel": "openrouter-auto"
 }
 ```
 
-| Key | What it does |
-|-----|-------------|
-| `skillDir` | Where to install generated skills |
-| `canonicalDir` | Optional second copy (shared team repo) |
-| `telemetryDb` | Path to SQLite DB (auto-detected if Cowork.ai installed) |
-| `repos` | GitHub repos for PR dashboard |
-| `defaultDays` | How many days of data to analyze |
+Supports: OpenRouter, Anthropic, Google (Gemini), OpenAI. The generated skills have real error handling, not templates.
 
-## Design Principles
+## Web UI
 
-1. **Runnable or nothing** — if we can't produce working commands, we don't generate it
-2. **One skill, one job** — compose them, don't merge them
-3. **Agent-agnostic** — markdown + YAML frontmatter works everywhere
-4. **Data-driven** — suggestions from your actual behavior, not a generic catalog
-5. **One per day** — daily drip, not a backlog dump
+```bash
+node ui/server.mjs    # start API on :3456
+cd ui && npm install && npm run dev  # start React UI on :3000
+```
 
-## Add Your Own Skills
+Four views: Discovery (suggestions), Skill Builder (install/manage), MCP Builder (generate MCP servers), Connections (API keys + data sources).
+
+## Adding Skills
+
+Add a function to `lib/generator.mjs`:
 
 ```javascript
-// lib/generator.mjs
-
 const IMPLEMENTATIONS = {
-  "your-skill": yourSkillFunction,
-  // ...
-};
-
-function yourSkillFunction(suggestion) {
-  return `---
+  "your-skill": (s, config) => `---
 name: your-skill
-description: "What it does"
+description: "When to use this"
 ---
 
 # Your Skill
 
 \`\`\`bash
-# Real, runnable commands here
-echo "This actually works"
+echo "real commands here"
 \`\`\`
-`;
-}
+`,
+};
 ```
 
-Then: `skill-builder implement your-skill --dry-run`
+Or just add an API key and the LLM handles it.
 
-## Why This Exists
+## Contributing
 
-AI coding agents are powerful but generic. They don't know your workflow — which repos you check, which APIs you monitor, which meetings need prep.
-
-This tool watches how you actually work and builds automations specific to you. Instead of browsing a marketplace for skills that might fit, you get suggestions derived from your real behavior — and they come with working code, not setup instructions.
-
-Built by [Go2](https://go2.io) as part of [Cowork.ai](https://cowork.ai).
+PRs welcome. Add a data source analyzer, add a built-in skill, fix a bug, improve a prompt. The code is straightforward — each analyzer is a standalone file in `lib/`, each skill is a function in `lib/generator.mjs`.
 
 ## License
 
