@@ -13,19 +13,25 @@ git clone https://github.com/Scottpedia0/skill-builder.git
 cd skill-builder
 npm install
 
-# Generate demo data (no Cowork.ai needed)
+# Generate rich demo data (8K sessions, 155 keystroke samples, 11 apps, 27 URLs)
 node scripts/generate-demo-db.mjs
 
-# Point at the demo DB
+# Set up config and point at demo data
 node bin/cli.mjs init
 # Edit ~/.skill-builder/config.json → set telemetryDb to "./demo/demo.db"
 
-# See suggestions from the demo data
-node bin/cli.mjs suggest
+# See what it finds in the demo data
+node bin/cli.mjs suggest --days 7
 
-# Preview a real skill
+# Preview a real, runnable skill
 node bin/cli.mjs implement pr-dashboard --dry-run
+
+# Install it
+node bin/cli.mjs implement pr-dashboard
+# → Installs to ~/.claude/commands/pr-dashboard.md
 ```
+
+The demo data simulates a founder running 3 AI coding agents with 8-10 meetings/week across Google Meet, managing GitHub repos, monitoring API costs, and communicating on Slack. The skill suggestions reflect real patterns found in that activity.
 
 <details>
 <summary>Example output</summary>
@@ -115,7 +121,7 @@ skill-builder list              # Show implementable skills
 - [ ] Calendar events
 - [ ] Slack/Teams activity
 
-The analyzer reads any SQLite database with `activity_sessions` and `keystroke_chunks` tables in the expected schema. See `demo/` for the table structure.
+The analyzer reads any SQLite database with `activity_sessions` and `keystroke_chunks` tables in the expected schema. See [`docs/data-sources.md`](docs/data-sources.md) for the full schema, import scripts, and guides for connecting each source.
 
 ## Configuration
 
