@@ -22,6 +22,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }, 3000);
   }, []);
 
+  const getToastStyle = (type: ToastType) => {
+    switch (type) {
+      case 'success':
+        return { background: 'var(--color-badge-working-bg)', borderColor: 'rgba(0, 184, 148, 0.2)', color: 'var(--color-success)' };
+      case 'error':
+        return { background: 'rgba(214, 48, 49, 0.1)', borderColor: 'rgba(214, 48, 49, 0.2)', color: 'var(--color-danger)' };
+      default:
+        return { background: 'var(--color-accent-soft)', borderColor: 'rgba(108, 92, 231, 0.2)', color: 'var(--color-accent)' };
+    }
+  };
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
@@ -33,11 +44,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg border ${
-                t.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                t.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
-                'bg-blue-500/10 border-blue-500/20 text-blue-400'
-              }`}
+              className="flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg"
+              style={{ ...getToastStyle(t.type), borderWidth: '1px', borderStyle: 'solid' }}
             >
               {t.type === 'success' && <CheckCircle2 className="w-4 h-4" />}
               {t.type === 'error' && <XCircle className="w-4 h-4" />}

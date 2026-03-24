@@ -139,7 +139,7 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-zinc-400">
+      <div className="flex items-center justify-center h-64" style={{ color: 'var(--color-text-muted)' }}>
         <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading connections...
       </div>
     );
@@ -148,10 +148,10 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
   return (
     <div className="space-y-10 max-w-5xl">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Connections</h1>
-        <p className="text-zinc-400 text-sm max-w-2xl">
+        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: '#fff' }}>Connections</h1>
+        <p className="text-sm max-w-2xl" style={{ color: 'var(--color-text-muted)' }}>
           Manage your local data sources and API keys. All data is analyzed locally on your machine.
-          Keys are stored securely in <code className="text-zinc-300 bg-white/10 px-1.5 py-0.5 rounded">~/.skill-builder/config.json</code>.
+          Keys are stored securely in <code className="px-1.5 py-0.5 rounded" style={{ color: 'var(--color-text)', background: 'rgba(255,255,255,0.1)' }}>~/.skill-builder/config.json</code>.
         </p>
       </header>
 
@@ -160,11 +160,11 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
         <div className="space-y-8">
           {/* API Keys */}
           <div className="space-y-4">
-            <h2 className="text-lg font-medium text-white flex items-center gap-2">
-              <Key className="w-5 h-5 text-amber-400" /> API Keys
+            <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#fff' }}>
+              <Key className="w-5 h-5" style={{ color: 'var(--color-warning)' }} /> API Keys
             </h2>
-            
-            <div className="bg-[#111] border border-white/10 rounded-xl p-6 space-y-5 shadow-2xl">
+
+            <div className="rounded-xl p-6 space-y-5" style={{ background: 'var(--color-card)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', boxShadow: '0 8px 40px rgba(0, 0, 0, 0.4)' }}>
               {[
                 { id: 'anthropic', name: 'Anthropic', placeholder: 'sk-ant-...' },
                 { id: 'openrouter', name: 'OpenRouter', placeholder: 'sk-or-...' },
@@ -181,33 +181,35 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
                 return (
                   <div key={key.id} className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-zinc-300">{key.name}</label>
+                      <label className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>{key.name}</label>
                       {connected ? (
-                        <span className="text-xs text-emerald-400 flex items-center gap-1">
+                        <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
                           <CheckCircle2 className="w-3.5 h-3.5" /> Connected
                         </span>
                       ) : (
-                        <span className="text-xs text-zinc-500 flex items-center gap-1">
+                        <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-text-muted)' }}>
                           <XCircle className="w-3.5 h-3.5" /> Not Set
                         </span>
                       )}
                     </div>
-                    <input 
-                      type="password" 
+                    <input
+                      type="password"
                       placeholder={key.placeholder}
                       value={val}
                       onChange={(e) => setKeys({ ...keys, [key.id]: e.target.value })}
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 transition-all"
+                      style={{ background: 'var(--color-bg)', color: '#fff', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
                     />
                   </div>
                 );
               })}
-              
-              <div className="pt-4 border-t border-white/10 flex justify-end">
-                <button 
+
+              <div className="pt-4 flex justify-end" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
+                <button
                   onClick={handleSaveKeys}
                   disabled={saving}
-                  className="text-sm bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="text-sm px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                  style={{ background: 'var(--color-accent)', color: '#fff' }}
                 >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   Save Keys
@@ -218,14 +220,15 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
 
           {/* Analysis Model */}
           <div className="space-y-4">
-            <h2 className="text-lg font-medium text-white flex items-center gap-2">
+            <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#fff' }}>
               <BrainCircuit className="w-5 h-5 text-purple-400" /> AI Model for Analysis
             </h2>
-            <div className="bg-[#111] border border-white/10 rounded-xl p-6 shadow-2xl">
-              <select 
+            <div className="rounded-xl p-6" style={{ background: 'var(--color-card)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', boxShadow: '0 8px 40px rgba(0, 0, 0, 0.4)' }}>
+              <select
                 value={analysisModel}
                 onChange={handleModelChange}
-                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none"
+                className="w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-1 transition-all appearance-none"
+                style={{ background: 'var(--color-bg)', color: '#fff', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
               >
                 <option value="gemini-flash">Gemini Flash (recommended — fast, cheap)</option>
                 <option value="gemini-pro">Gemini Pro</option>
@@ -234,7 +237,7 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
                 <option value="gpt-4o-mini">GPT-4o-mini</option>
                 <option value="openrouter-auto">OpenRouter Auto</option>
               </select>
-              <p className="text-xs text-zinc-500 mt-3">
+              <p className="text-xs mt-3" style={{ color: 'var(--color-text-muted)' }}>
                 Uses your API key for the selected provider. Gemini Flash recommended for best cost/speed ratio.
               </p>
             </div>
@@ -243,26 +246,27 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
 
         {/* Right Column - Data Sources */}
         <div className="space-y-4">
-          <h2 className="text-lg font-medium text-white flex items-center gap-2">
-            <Database className="w-5 h-5 text-indigo-400" /> Local Data Sources
+          <h2 className="text-lg font-medium flex items-center gap-2" style={{ color: '#fff' }}>
+            <Database className="w-5 h-5" style={{ color: 'var(--color-accent)' }} /> Local Data Sources
           </h2>
-          
-          <div className="bg-[#111] border border-white/10 rounded-xl p-2 shadow-2xl">
+
+          <div className="rounded-xl p-2" style={{ background: 'var(--color-card)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', boxShadow: '0 8px 40px rgba(0, 0, 0, 0.4)' }}>
             {AVAILABLE_SOURCES.map((source, idx) => {
               const isActive = !!sources[source.id];
               const missingKey = source.requiresKey && !keys[source.requiresKey as keyof typeof keys];
-              
+
               return (
-                <div 
-                  key={source.id} 
-                  className={`p-4 flex flex-col gap-3 ${idx !== AVAILABLE_SOURCES.length - 1 ? 'border-b border-white/5' : ''}`}
+                <div
+                  key={source.id}
+                  className="p-4 flex flex-col gap-3"
+                  style={idx !== AVAILABLE_SOURCES.length - 1 ? { borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' } : undefined}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-medium text-zinc-100">{source.name}</h3>
-                      <p className="text-xs text-zinc-500 mt-0.5">{source.desc}</p>
+                      <h3 className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>{source.name}</h3>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{source.desc}</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-3 shrink-0 ml-4">
                       {source.configKey && (
                         <input
@@ -271,28 +275,29 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
                           value={sourceConfigs[source.configKey] || ''}
                           onChange={(e) => setSourceConfigs({...sourceConfigs, [source.configKey!]: e.target.value})}
                           onBlur={handleConfigBlur}
-                          className="w-48 bg-black border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                          className="w-48 rounded-lg px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 transition-all"
+                          style={{ background: 'var(--color-bg)', color: '#fff', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
                         />
                       )}
                       {source.auto ? (
-                        <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded font-medium flex items-center gap-1">
+                        <span className="text-xs px-2 py-1 rounded font-medium flex items-center gap-1" style={{ color: 'var(--color-badge-working-text)', background: 'var(--color-badge-working-bg)' }}>
                           <CheckCircle2 className="w-3.5 h-3.5" /> Auto-detected
                         </span>
                       ) : missingKey ? (
-                        <span className="text-xs text-amber-500 bg-amber-500/10 px-2 py-1 rounded font-medium">
+                        <span className="text-xs px-2 py-1 rounded font-medium" style={{ color: 'var(--color-badge-idle-text)', background: 'var(--color-badge-idle-bg)' }}>
                           Requires {source.requiresKey} key
                         </span>
                       ) : (
-                        <button 
+                        <button
                           onClick={() => toggleSource(source.id)}
-                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-                            isActive ? 'bg-indigo-500' : 'bg-zinc-700'
-                          }`}
+                          className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+                          style={{ background: isActive ? 'var(--color-accent)' : '#3f3f46' }}
                         >
-                          <span 
-                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full transition-transform ${
                               isActive ? 'translate-x-4' : 'translate-x-1'
-                            }`} 
+                            }`}
+                            style={{ background: '#fff' }}
                           />
                         </button>
                       )}
@@ -303,10 +308,11 @@ export default function Connections({ onNavigate }: { onNavigate: (tab: string) 
             })}
           </div>
 
-          <button 
+          <button
             onClick={handleScan}
             disabled={scanning}
-            className="w-full text-sm bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full text-sm py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            style={{ background: 'var(--color-accent)', color: '#fff', boxShadow: '0 4px 24px rgba(108, 92, 231, 0.2)' }}
           >
             {scanning && <Loader2 className="w-4 h-4 animate-spin" />}
             {scanning ? 'Scanning...' : 'Scan All Enabled Sources'}
