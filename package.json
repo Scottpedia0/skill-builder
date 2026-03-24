@@ -1,7 +1,7 @@
 {
-  "name": "skill-builder",
+  "name": "@go2/skill-builder",
   "version": "0.1.0",
-  "description": "Reads activity telemetry to suggest and build skills and MCPs for AI coding agents",
+  "description": "Analyze how you work → build automations for AI coding agents. Shell history, git, browser, Claude threads → working skills via LLM.",
   "type": "module",
   "bin": {
     "skill-builder": "./bin/cli.mjs"
@@ -9,14 +9,42 @@
   "scripts": {
     "suggest": "node bin/cli.mjs suggest",
     "daily": "node bin/cli.mjs daily",
-    "implement": "node bin/cli.mjs implement"
+    "implement": "node bin/cli.mjs implement",
+    "ui": "node bin/cli.mjs ui"
   },
+  "keywords": [
+    "claude-code",
+    "ai-agents",
+    "skills",
+    "mcp",
+    "automation",
+    "developer-tools",
+    "codex",
+    "cursor",
+    "workflow",
+    "productivity",
+    "skill-builder",
+    "slash-commands"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Scottpedia0/skill-builder.git"
   },
+  "homepage": "https://github.com/Scottpedia0/skill-builder",
   "author": "Go2 <s@go2.io>",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "scripts/",
+    "docs/",
+    "demo/",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "better-sqlite3": "^12.8.0"
   }
