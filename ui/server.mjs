@@ -14,7 +14,8 @@ import { homedir } from "os";
 
 import { openDb, analyzeAll } from "../lib/analyzer.mjs";
 import { generateSuggestions, dailyPick } from "../lib/suggester.mjs";
-import { generateSkill, listImplementable } from "../lib/generator.mjs";
+import { generateSkill, listImplementable, canGenerate } from "../lib/generator.mjs";
+import { hasLlmAvailable } from "../lib/llm.mjs";
 import { analyzeShellHistory } from "../lib/shell-analyzer.mjs";
 import { analyzeGitHistory } from "../lib/git-analyzer.mjs";
 import { loadConfig, initConfig, detectTelemetryDb } from "../lib/config.mjs";
@@ -85,14 +86,16 @@ function runScan(days = 7) {
     .filter((s) => { if (seen.has(s.id)) return false; seen.add(s.id); return true; })
     .sort((a, b) => (order[a.confidence] ?? 3) - (order[b.confidence] ?? 3));
 
-  // Enrich with canImplement and type
+  // Enrich with canImplement (hardcoded OR LLM available) and type
   const implementable = listImplementable();
+  const llmAvailable = hasLlmAvailable();
   suggestions = suggestions.map((s) => ({
     ...s,
     name: s.id,
-    canImplement: implementable.includes(s.id),
+    canImplement: implementable.includes(s.id) || llmAvailable,
+    hardcoded: implementable.includes(s.id),
     type: s.source === "mcp" ? "mcp" : "skill",
-    aiAnalyzed: false, // TODO: wire AI analysis
+    aiAnalyzed: false,
   }));
 
   cachedSuggestions = suggestions;
@@ -192,8 +195,8 @@ const server = createServer(async (req, res) => {
       const config = readConfig();
       const suggestions = cachedSuggestions || runScan();
       const target = suggestions.find((s) => s.id === id) || { id, signal: "manual", source: "url_pattern", confidence: "high", description: "" };
-      const result = generateSkill(target, { dryRun: true, config });
-      if (!result) return json(res, { error: "No implementation available" }, 404);
+      const result = await generateSkill(target, { dryRun: true, config });
+      if (!result) return json(res, { error: "No implementation available. Configure an API key to enable LLM generation." }, 404);
       return json(res, result);
     }
 
